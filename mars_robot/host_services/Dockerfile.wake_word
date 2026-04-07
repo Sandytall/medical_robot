@@ -1,0 +1,33 @@
+FROM python:3.9-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libasound2-dev \
+    libportaudio2 \
+    portaudio19-dev \
+    pulseaudio-utils \
+    alsa-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN pip install \
+    pyaudio \
+    pvporcupine \
+    zmq \
+    numpy \
+    psutil
+
+# Create working directory
+WORKDIR /app
+
+# Copy wake word service files
+COPY wake_word_detector.py /app/
+COPY hardware_bridge.py /app/
+COPY mock_hardware.py /app/
+
+# Create shared data directory
+RUN mkdir -p /shared_data
+
+EXPOSE 5555
+
+CMD ["python", "wake_word_detector.py"]

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  ros2_robot:
+    environment:
+      - ROBOT_ENV=production
+      - USE_MOCK_HARDWARE=false
+    devices:
+      - "/dev/video0:/dev/video0"    # IMX477 camera
+      - "/dev/gpiomem:/dev/gpiomem"  # GPIO access
+      - "/dev/snd:/dev/snd"          # Audio devices
+      - "/dev/ttyACM0:/dev/ttyACM0"  # Serial devices (if needed)
+    volumes:
+      - ./config:/config:ro
+      - ./ros2_workspace:/ros2_workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./shared_data:/shared_data
+      - /sys/class/gpio:/sys/class/gpio
+
+  wake_word_service:
+    environment:
+      - USE_MOCK_AUDIO=false
+      - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
+    devices:
+      - "/dev/snd:/dev/snd"

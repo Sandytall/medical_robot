@@ -1,0 +1,256 @@
+# Mars Robot Voice Recognition Configuration
+# Configuration for wake word detection, speech processing, and TTS
+
+wake_word:
+  # Porcupine wake word detection
+  service: "porcupine"
+  keywords: ["mars"]           # Wake word(s) to detect
+  sensitivities: [0.7]         # Sensitivity for each keyword (0.0-1.0)
+
+  # Audio settings for wake word detection
+  sample_rate: 16000           # Audio sample rate (must match Porcupine requirements)
+  frame_length: 512            # Frame length for processing
+
+  # Response settings
+  response_timeout: 5.0        # Seconds to listen for command after wake word
+  confirmation_sounds: true    # Play confirmation sound after wake word
+
+  # Wake word responses (Mars will randomly choose one)
+  responses:
+    - "hey"
+    - "what's up"
+    - "what's hanging"
+    - "yes?"
+    - "how can I help?"
+
+speech_recognition:
+  # Speech-to-text engine
+  engine: "whisper"            # whisper, google, sphinx
+  model: "base"                # Whisper model size (tiny, base, small, medium, large)
+
+  # Audio processing settings
+  sample_rate: 16000           # Audio sample rate
+  chunk_duration: 0.5          # Duration of audio chunks in seconds
+  silence_threshold: 1000      # Silence detection threshold
+  silence_duration: 2.0        # Seconds of silence before stopping recording
+
+  # Recording settings
+  max_recording_duration: 10.0 # Maximum recording duration in seconds
+  min_recording_duration: 1.0  # Minimum recording duration in seconds
+
+  # Language settings
+  language: "en"               # Language code (en, es, fr, etc.)
+
+  # Confidence and filtering
+  confidence_threshold: 0.3    # Minimum confidence for accepting speech
+  noise_reduction: true        # Enable noise reduction preprocessing
+
+text_to_speech:
+  # TTS engine configuration
+  engine: "pyttsx3"            # pyttsx3, espeak, festival
+
+  # Voice settings
+  voice: "default"             # Voice ID (default, male, female)
+  rate: 180                    # Speaking rate (words per minute)
+  volume: 0.8                  # TTS volume (0.0-1.0)
+
+  # Voice characteristics for different modes
+  voices:
+    default:
+      rate: 180
+      volume: 0.8
+    friendly:
+      rate: 160
+      volume: 0.9
+    urgent:
+      rate: 200
+      volume: 1.0
+    calm:
+      rate: 140
+      volume: 0.7
+
+# Command recognition patterns
+commands:
+  # Registration commands
+  registration:
+    patterns:
+      - "register me"
+      - "sign me up"
+      - "new patient"
+      - "add me to database"
+    response_timeout: 30.0     # Max time to complete registration
+
+  # Manual control commands
+  manual_mode:
+    patterns:
+      - "manual mode"
+      - "gamepad control"
+      - "take control"
+
+  # Follow mode commands
+  follow_mode:
+    patterns:
+      - "follow me"
+      - "come with me"
+      - "follow along"
+    follow_timeout: 15.0       # Seconds to find registered face
+
+  # Question mode commands
+  question_mode:
+    patterns:
+      - "i have a question"
+      - "ask you something"
+      - "help me with"
+      - "question for you"
+    response_timeout: 60.0     # Max time for Q&A interaction
+
+  # Medicine time commands
+  medicine_time:
+    patterns:
+      - "medicine time"
+      - "medication time"
+      - "pill time"
+      - "time for medicine"
+    search_timeout: 30.0       # Time to wait for each patient
+
+  # Health check commands
+  health_check:
+    patterns:
+      - "i don't feel"
+      - "not feeling well"
+      - "feel sick"
+      - "feel bad"
+    assessment_timeout: 120.0   # Time for health assessment
+
+  # General stop commands
+  stop_commands:
+    patterns:
+      - "stop"
+      - "halt"
+      - "emergency stop"
+      - "cancel"
+      - "never mind"
+
+# Natural language processing
+nlp:
+  # Intent recognition
+  confidence_threshold: 0.6    # Minimum confidence for intent recognition
+
+  # Entity extraction for patient information
+  entities:
+    name:
+      patterns:
+        - "my name is {name}"
+        - "i'm {name}"
+        - "call me {name}"
+
+    age:
+      patterns:
+        - "i'm {age} years old"
+        - "my age is {age}"
+        - "{age} years"
+
+    medication:
+      patterns:
+        - "i take {medication}"
+        - "my medication is {medication}"
+        - "prescribed {medication}"
+
+    symptoms:
+      patterns:
+        - "i have {symptom}"
+        - "feeling {symptom}"
+        - "experiencing {symptom}"
+
+# LLM API configuration for question answering
+llm_api:
+  provider: "openai"           # openai, anthropic, local
+  model: "gpt-3.5-turbo"       # Model to use
+  api_key_env: "OPENAI_API_KEY" # Environment variable for API key
+
+  # Request settings
+  max_tokens: 150              # Maximum response tokens (keep responses short)
+  temperature: 0.7             # Response creativity (0.0-1.0)
+
+  # System prompts for different contexts
+  prompts:
+    general: |
+      You are MARS, a helpful hospital robot. Give brief, clear answers in 5 lines or less.
+      Be friendly and professional. Focus on being helpful to patients and staff.
+
+    medical: |
+      You are MARS, a hospital robot. Provide general health information only.
+      Always recommend consulting with medical professionals for specific advice.
+      Keep responses brief (5 lines max) and encouraging.
+
+    emergency: |
+      You are MARS, a hospital robot. This may be an emergency situation.
+      Provide calm, clear guidance and recommend immediate medical attention if needed.
+
+# Voice activity detection
+vad:
+  enabled: true                # Enable voice activity detection
+  threshold: 0.3               # Voice activity threshold
+  min_speech_duration: 0.5     # Minimum speech duration to consider valid
+  pre_speech_padding: 0.2      # Padding before speech starts
+  post_speech_padding: 0.5     # Padding after speech ends
+
+# Audio preprocessing
+audio_processing:
+  # Noise reduction
+  noise_reduction:
+    enabled: true
+    strength: 0.5              # Noise reduction strength (0.0-1.0)
+
+  # Automatic gain control
+  agc:
+    enabled: true
+    target_level: 0.3          # Target audio level
+    max_gain: 3.0              # Maximum gain multiplier
+
+  # Echo cancellation (for speaker feedback)
+  echo_cancellation:
+    enabled: true
+    filter_length: 512         # Echo cancellation filter length
+
+# Conversation context
+context:
+  max_history: 10              # Maximum conversation history items
+  context_timeout: 300.0       # Seconds before context expires
+
+  # Context types to track
+  track_entities: true         # Remember extracted entities
+  track_sentiment: true        # Remember conversation sentiment
+  track_topics: true          # Remember discussion topics
+
+# Error handling and fallbacks
+error_handling:
+  max_retries: 3               # Maximum retries for failed recognition
+  retry_prompts:
+    - "I didn't catch that. Could you repeat?"
+    - "Sorry, can you say that again?"
+    - "I'm having trouble hearing you. Please repeat."
+
+  fallback_responses:
+    - "I'm having trouble understanding. Let me get a human to help you."
+    - "There seems to be a technical issue. I'll alert the staff."
+
+  # Timeout responses
+  timeout_responses:
+    - "I didn't hear anything. Is everything okay?"
+    - "Are you still there? Say 'Hey Mars' if you need help."
+
+# Logging and monitoring
+monitoring:
+  log_audio: false             # Log audio data (privacy consideration)
+  log_transcripts: true        # Log speech transcripts
+  log_commands: true           # Log recognized commands
+  log_responses: true          # Log TTS responses
+
+  # Performance monitoring
+  latency_monitoring: true     # Monitor response latencies
+  accuracy_monitoring: true    # Monitor recognition accuracy
+
+  # Alert thresholds
+  high_latency_threshold: 5.0  # Seconds
+  low_accuracy_threshold: 0.5  # Recognition accuracy

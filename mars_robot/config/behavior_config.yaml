@@ -1,0 +1,270 @@
+# Mars Robot Behavior Configuration
+# Configuration for behavior trees and robot modes
+
+# Behavior tree settings
+behavior_tree:
+  update_rate: 10.0            # Behavior tree update frequency (Hz)
+  blackboard_timeout: 30.0     # Blackboard data timeout (seconds)
+
+  # Behavior priorities (higher number = higher priority)
+  priorities:
+    emergency_stop: 1000       # Highest priority
+    safety_check: 900
+    voice_command: 800
+    medicine_time: 700
+    follow_person: 600
+    health_check: 500
+    question_response: 400
+    manual_control: 300
+    idle_behavior: 100         # Lowest priority
+
+# Robot operation modes
+modes:
+  # Idle mode - default state
+  idle:
+    enabled: true
+    default_duration: 300.0    # Auto-return to idle after 5 minutes of inactivity
+
+    # Random movements and greetings
+    random_movements:
+      enabled: true
+      movement_interval: [30, 60]  # Random interval between movements (seconds)
+      movements:
+        - name: "wave"
+          probability: 0.3
+          duration: 3.0
+        - name: "look_around"
+          probability: 0.4
+          duration: 5.0
+        - name: "greet"
+          probability: 0.2
+          duration: 2.0
+        - name: "stretch"
+          probability: 0.1
+          duration: 4.0
+
+    # Greeting responses
+    greetings:
+      - "Hello there!"
+      - "Good day!"
+      - "How are you feeling today?"
+      - "Welcome! I'm MARS, your hospital assistant."
+
+  # Manual control mode
+  manual:
+    enabled: true
+    timeout: 600.0             # Auto-exit after 10 minutes
+    controller_type: "gamepad"  # gamepad, keyboard
+
+    # Speed settings
+    speed_levels:
+      slow: 0.3
+      normal: 0.6
+      fast: 1.0
+    default_speed: "normal"
+
+  # Follow mode
+  follow:
+    enabled: true
+    timeout: 300.0             # Stop following after 5 minutes
+
+    # Following behavior parameters
+    target_distance: 1.5       # Desired distance from person (meters)
+    max_distance: 3.0          # Stop following if person is too far
+    min_confidence: 0.4        # Minimum face recognition confidence
+
+    # Movement parameters
+    linear_speed: 0.5          # Maximum linear speed (m/s)
+    angular_speed: 1.0         # Maximum angular speed (rad/s)
+    stop_distance: 0.8         # Stop if closer than this distance
+
+    # Camera tracking
+    camera_tracking: true
+    pan_gain: 0.5              # PID gain for pan tracking
+    tilt_gain: 0.3             # PID gain for tilt tracking
+
+  # Registration mode
+  registration:
+    enabled: true
+    timeout: 120.0             # Registration timeout (2 minutes)
+
+    # Photo capture settings
+    photo_count: 50            # Number of photos to capture
+    photo_interval: 0.5        # Interval between photos (seconds)
+    photo_quality: 0.8         # JPEG quality (0.0-1.0)
+
+    # Face detection during registration
+    face_required: true        # Require face in frame for photo capture
+    min_face_size: [50, 50]    # Minimum face size in pixels
+
+    # Registration prompts
+    prompts:
+      start: "I'll help you register. Please look at the camera."
+      name: "What's your name?"
+      age: "How old are you?"
+      medical_info: "Do you have any medical conditions or take medications?"
+      capturing: "Perfect! I'm capturing your photos now. Please turn your head slowly."
+      complete: "Registration complete! Welcome to our hospital system."
+
+  # Question/Answer mode
+  question:
+    enabled: true
+    timeout: 60.0              # Question mode timeout
+    max_response_length: 200   # Maximum characters in response
+
+    # LLM API settings
+    use_local_llm: false       # Use local LLM instead of API
+    api_retry_attempts: 3      # Number of API retry attempts
+
+    # Conversation prompts
+    prompts:
+      listening: "I'm listening. What would you like to know?"
+      thinking: "Let me think about that..."
+      error: "I'm having trouble processing that. Could you rephrase your question?"
+
+  # Medicine dispensing mode
+  medicine:
+    enabled: true
+    search_timeout: 30.0       # Time to search for each patient
+    dispensing_timeout: 60.0   # Time limit for dispensing medication
+
+    # Patient search behavior
+    search_pattern: "systematic"  # systematic, random
+    call_timeout: 30.0         # Time to wait after calling patient name
+
+    # Safety settings
+    require_patient_confirmation: true  # Confirm patient identity before dispensing
+    double_check_medication: true       # Confirm medication before dispensing
+
+    # Dispensing sequence
+    dispensing_steps:
+      - "confirm_patient"
+      - "check_medication"
+      - "dispense_medication"
+      - "confirm_taken"
+      - "update_records"
+
+  # Health assessment mode
+  health_check:
+    enabled: true
+    assessment_timeout: 180.0  # 3 minutes for health check
+
+    # Standard health questions
+    questions:
+      - "What symptoms are you experiencing?"
+      - "Are you having any nausea or vomiting?"
+      - "Have you taken your medications today?"
+      - "How well are you sleeping?"
+      - "On a scale of 1-10, how would you rate your pain?"
+
+    # Severity assessment keywords
+    severity_keywords:
+      high:
+        - "severe"
+        - "intense"
+        - "unbearable"
+        - "emergency"
+        - "chest pain"
+        - "difficulty breathing"
+      medium:
+        - "moderate"
+        - "uncomfortable"
+        - "concerning"
+        - "dizzy"
+        - "nauseous"
+      low:
+        - "mild"
+        - "slight"
+        - "minor"
+        - "tired"
+        - "headache"
+
+# Safety and emergency protocols
+safety:
+  # Emergency stop triggers
+  emergency_triggers:
+    - "hardware_failure"
+    - "collision_detected"
+    - "patient_distress"
+    - "manual_emergency_button"
+
+  # Safety timeouts
+  max_interaction_time: 1800.0  # 30 minutes maximum interaction
+  patient_check_interval: 10.0  # Check patient wellbeing every 10 seconds
+
+  # Movement safety
+  collision_avoidance: true
+  max_approach_speed: 0.3      # Max speed when approaching people
+  personal_space_radius: 0.5   # Minimum distance from people
+
+# Patient database interaction
+database:
+  # Patient search parameters
+  face_match_threshold: 0.6    # Confidence threshold for face matching
+  search_timeout: 5.0          # Database search timeout
+
+  # Data privacy settings
+  anonymize_logs: true         # Remove personal data from logs
+  encryption_enabled: true     # Encrypt stored patient data
+
+# Communication protocols
+communication:
+  # Doctor dashboard settings
+  dashboard:
+    enabled: true
+    update_interval: 5.0       # Dashboard update frequency
+    alert_priority_threshold: "medium"  # Minimum alert priority to send
+
+  # Message formatting
+  alerts:
+    format: "json"             # json, xml, text
+    include_timestamp: true
+    include_patient_id: true
+    include_severity: true
+
+# Performance optimization
+performance:
+  # CPU usage management
+  cpu_monitoring: true
+  cpu_throttle_threshold: 80.0  # Start throttling at 80% CPU
+  low_priority_tasks:
+    - "idle_movements"
+    - "background_logging"
+    - "non_critical_diagnostics"
+
+  # Memory management
+  memory_monitoring: true
+  max_memory_usage: 1536       # Maximum memory usage in MB
+  garbage_collection_interval: 60.0  # Force GC every minute
+
+# Logging and diagnostics
+diagnostics:
+  # Behavior logging
+  log_state_changes: true      # Log behavior tree state changes
+  log_patient_interactions: true  # Log patient interaction summaries
+  log_system_performance: true    # Log system performance metrics
+
+  # Health monitoring
+  self_diagnostics_interval: 30.0  # Self-check every 30 seconds
+  health_report_interval: 300.0    # Health report every 5 minutes
+
+  # Alert thresholds
+  alerts:
+    high_cpu_usage: 85.0       # CPU usage percentage
+    high_memory_usage: 90.0    # Memory usage percentage
+    high_temperature: 80.0     # Temperature in Celsius
+    low_battery: 20.0          # Battery percentage (if applicable)
+
+# Development and testing
+development:
+  debug_mode: false            # Enable debug output
+  simulation_mode: false       # Use simulated sensors/actuators
+  mock_patients: false         # Use mock patient database for testing
+
+  # Test scenarios
+  test_scenarios:
+    - "normal_registration"
+    - "emergency_situation"
+    - "medication_reminder"
+    - "health_assessment"
+    - "follow_behavior"

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  ros2_robot:
+    environment:
+      - ROBOT_ENV=development
+      - USE_MOCK_HARDWARE=true
+    devices:
+      - "/dev/video0:/dev/video0"  # Laptop webcam for testing
+    volumes:
+      - ./config:/config:ro
+      - ./ros2_workspace:/ros2_workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./shared_data:/shared_data
+      - ./mock_hardware:/mock_hardware:ro
+
+  wake_word_service:
+    environment:
+      - USE_MOCK_AUDIO=true
+      - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native

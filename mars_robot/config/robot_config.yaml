@@ -1,0 +1,169 @@
+# Mars Robot Hardware Configuration
+# Configuration for Raspberry Pi 5 with various hardware components
+
+hardware:
+  # Motor configuration (L298N driver)
+  motors:
+    left_motor:
+      enable_pin: 18     # PWM pin for left motor speed control
+      in1_pin: 19        # Direction pin 1 for left motor
+      in2_pin: 20        # Direction pin 2 for left motor
+
+    right_motor:
+      enable_pin: 21     # PWM pin for right motor speed control
+      in1_pin: 22        # Direction pin 1 for right motor
+      in2_pin: 23        # Direction pin 2 for right motor
+
+    wheel_separation: 0.3  # Distance between wheels in meters
+    wheel_radius: 0.05     # Wheel radius in meters
+    max_speed: 1.0         # Maximum speed in m/s
+
+  # Robotic arms configuration (2 arms × 4 servos each)
+  arms:
+    left_arm:
+      servos: [2, 3, 4, 5]     # GPIO pins for left arm servos (base to wrist)
+      servo_limits:            # Angle limits for each joint
+        - [-90, 90]            # Joint 0: Base rotation
+        - [-45, 135]           # Joint 1: Shoulder
+        - [-135, 45]           # Joint 2: Elbow
+        - [-90, 90]            # Joint 3: Wrist
+
+    right_arm:
+      servos: [6, 7, 8, 9]     # GPIO pins for right arm servos
+      servo_limits:
+        - [-90, 90]            # Joint 0: Base rotation
+        - [-45, 135]           # Joint 1: Shoulder
+        - [-135, 45]           # Joint 2: Elbow
+        - [-90, 90]            # Joint 3: Wrist
+
+    movement_speed: 0.5        # Default movement speed (0.0-1.0)
+
+    # Preset positions for common movements
+    presets:
+      home:
+        left: [0, 0, 0, 0]
+        right: [0, 0, 0, 0]
+      wave:
+        left: [0, 45, -45, 0]
+        right: [0, 45, -45, 0]
+      medicine_grab:
+        left: [45, 90, -90, 0]
+        right: [-45, 90, -90, 0]
+      point_forward:
+        left: [0, 0, 0, 0]
+        right: [0, 90, 0, 0]
+      greet:
+        left: [-30, 60, -30, 0]
+        right: [30, 60, -30, 0]
+
+  # Camera servo configuration (pan/tilt)
+  camera_servos:
+    pan_servo:
+      pin: 10               # GPIO pin for pan servo
+      range: [-90, 90]      # Pan angle range in degrees
+      center_angle: 0       # Center position
+
+    tilt_servo:
+      pin: 11               # GPIO pin for tilt servo
+      range: [-45, 45]      # Tilt angle range in degrees
+      center_angle: 0       # Center position
+
+    movement_speed: 0.5     # Movement speed (0.0-1.0)
+
+  # IMX477 Camera configuration
+  camera:
+    device: "/dev/video0"   # Camera device path
+    resolution: [640, 480]  # [width, height] in pixels
+    fps: 30                 # Frames per second
+    format: "BGR8"          # Image format for ROS2
+
+    # Camera calibration (to be filled with actual calibration)
+    camera_matrix:
+      - [800.0, 0.0, 320.0]
+      - [0.0, 800.0, 240.0]
+      - [0.0, 0.0, 1.0]
+    distortion_coefficients: [0.0, 0.0, 0.0, 0.0, 0.0]
+
+    # Face detection settings
+    face_detection:
+      cascade_file: "/opt/opencv/data/haarcascade_frontalface_default.xml"
+      min_face_size: [30, 30]
+      scale_factor: 1.1
+      min_neighbors: 3
+      confidence_threshold: 0.4
+
+  # Audio configuration (USB audio device)
+  audio:
+    input_device: "hw:1,0"    # USB microphone
+    output_device: "hw:1,0"   # USB speaker
+    sample_rate: 16000        # Audio sample rate in Hz
+    channels: 1               # Mono audio
+    chunk_size: 1024          # Audio buffer size
+
+    # Volume settings
+    default_volume: 0.7       # Default output volume (0.0-1.0)
+    microphone_gain: 0.5      # Default microphone gain (0.0-1.0)
+
+    # Text-to-speech settings
+    tts:
+      engine: "pyttsx3"       # TTS engine
+      voice: "default"        # Voice selection
+      rate: 200               # Speaking rate (words per minute)
+
+    # Sound effects file paths
+    sounds:
+      beep: "/sounds/beep.wav"
+      alert: "/sounds/alert.wav"
+      success: "/sounds/success.wav"
+      error: "/sounds/error.wav"
+      startup: "/sounds/startup.wav"
+
+  # Display configuration
+  display:
+    device: "/dev/fb1"        # Display device (or HDMI)
+    resolution: [800, 600]    # Display resolution
+    brightness: 0.8           # Default brightness (0.0-1.0)
+    background_color: [0, 0, 0]  # RGB background color
+
+    # Emotion display settings
+    emotions:
+      animation_duration: 2.0  # Default emotion display duration
+      font_size: 24           # Default font size for text
+      text_color: [255, 255, 255]  # RGB text color
+
+  # Emergency stop configuration
+  emergency_stop:
+    pin: 12                   # GPIO pin for hardware emergency stop button
+    pull_up: true             # Use internal pull-up resistor
+
+# System performance settings
+system:
+  cpu_limit: 80.0             # Maximum CPU usage percentage
+  memory_limit: 2048          # Maximum memory usage in MB
+  temperature_limit: 75.0     # Maximum CPU temperature in Celsius
+
+  # Resource monitoring intervals
+  monitoring:
+    system_stats_interval: 1.0     # System stats update interval (seconds)
+    hardware_status_interval: 5.0   # Hardware status check interval
+
+# Patient database configuration
+database:
+  type: "sqlite"              # Database type
+  path: "/shared_data/database/patients.db"  # Database file path
+  backup_interval: 3600       # Backup interval in seconds (1 hour)
+  max_face_photos: 50         # Maximum photos per patient for face recognition
+
+# Face recognition settings
+face_recognition:
+  model: "hog"                # Face recognition model (hog/cnn)
+  tolerance: 0.6              # Face matching tolerance (lower = stricter)
+  confidence_threshold: 0.4   # Minimum confidence for face detection
+  photo_capture_interval: 0.5 # Interval between photos during registration
+
+# Logging configuration
+logging:
+  level: "INFO"               # Log level (DEBUG, INFO, WARNING, ERROR)
+  file_path: "/shared_data/logs/mars_robot.log"
+  max_file_size: 10485760     # Maximum log file size (10MB)
+  backup_count: 5             # Number of backup log files to keep
