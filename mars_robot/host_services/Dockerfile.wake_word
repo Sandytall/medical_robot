@@ -19,7 +19,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
     psutil \
     pyzmq \
     pyaudio \
-    pvporcupine
+    pvporcupine \
+    pyyaml
 
 # Create working directory
 WORKDIR /app

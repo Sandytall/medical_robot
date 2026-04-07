@@ -44,7 +44,8 @@ RUN pip3 install --no-cache-dir \
     fastapi \
     uvicorn \
     sqlalchemy \
-    RPi.GPIO
+    RPi.GPIO \
+    pyyaml
 
 # Create workspace
 WORKDIR /ros2_workspace
@@ -59,7 +60,7 @@ RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then rosdep init
 RUN rosdep install --from-paths src --ignore-src -r -y
 
 # Build workspace
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --packages-select mars_core mars_hardware mars_voice mars_behaviors"
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --packages-select mars_core mars_hardware mars_voice mars_behaviors --symlink-install"
 
 # Source ROS2 setup
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
