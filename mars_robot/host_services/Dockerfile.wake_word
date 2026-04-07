@@ -1,21 +1,25 @@
 FROM python:3.9-slim
 
-# Install system dependencies
+# Install system dependencies and build tools
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
     libasound2-dev \
     libportaudio2 \
     portaudio19-dev \
     pulseaudio-utils \
     alsa-utils \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages
-RUN pip install \
-    pyaudio \
-    pvporcupine \
-    zmq \
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
     numpy \
-    psutil
+    psutil \
+    pyzmq \
+    pyaudio \
+    pvporcupine
 
 # Create working directory
 WORKDIR /app
