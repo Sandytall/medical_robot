@@ -5,7 +5,6 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-colcon-common-extensions \
     python3-rosdep \
-    python3-rclpy \
     ros-humble-cv-bridge \
     ros-humble-image-transport \
     ros-humble-camera-info-manager \
@@ -19,7 +18,6 @@ RUN apt-get update && apt-get install -y \
     python3-opencv \
     python3-numpy \
     python3-scipy \
-    python3-sqlite3 \
     libasound2-dev \
     libportaudio2 \
     portaudio19-dev \
@@ -28,7 +26,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages
-RUN pip3 install \
+RUN pip3 install --no-cache-dir \
     opencv-python \
     numpy \
     scipy \
@@ -37,17 +35,16 @@ RUN pip3 install \
     pyaudio \
     pyttsx3 \
     requests \
-    zmq \
+    pyzmq \
     psutil \
     py_trees \
     face_recognition \
     openai \
-    whisper-ai \
+    openai-whisper \
     fastapi \
     uvicorn \
     sqlalchemy \
-    sqlite3 \
-    rpi.gpio
+    RPi.GPIO
 
 # Create workspace
 WORKDIR /ros2_workspace
