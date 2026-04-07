@@ -22,8 +22,6 @@ WORKDIR /app
 
 # Copy wake word service files
 COPY wake_word_detector.py /app/
-COPY hardware_bridge.py /app/
-COPY mock_hardware.py /app/
 
 # Create shared data directory
 RUN mkdir -p /shared_data
