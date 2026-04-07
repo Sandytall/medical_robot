@@ -52,18 +52,18 @@ WORKDIR /ros2_workspace
 # Copy source files
 COPY src/ /ros2_workspace/src/
 
-# Initialize rosdep
-RUN rosdep init && rosdep update
+# Initialize rosdep (skip if already exists)
+RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then rosdep init; fi && rosdep update
 
 # Install dependencies
 RUN rosdep install --from-paths src --ignore-src -r -y
 
-# Build workspace (this will be done in docker-compose to allow for development)
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build"
+# Build workspace
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --packages-select mars_core mars_hardware mars_voice mars_behaviors"
 
 # Source ROS2 setup
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-RUN echo "source /ros2_workspace/install/setup.bash" >> ~/.bashrc
+RUN echo "if [ -f /ros2_workspace/install/setup.bash ]; then source /ros2_workspace/install/setup.bash; fi" >> ~/.bashrc
 
 # Create shared data directory
 RUN mkdir -p /shared_data/database /shared_data/faces /shared_data/logs
