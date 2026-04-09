@@ -25,27 +25,40 @@ RUN apt-get update && apt-get install -y \
     alsa-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python packages
-RUN pip3 install --no-cache-dir \
-    opencv-python \
+# Install Python packages in chunks to avoid timeouts and improve caching
+# Basic packages first
+RUN pip3 install --no-cache-dir --timeout 600 \
     numpy \
     scipy \
     pillow \
-    pygame \
-    pyaudio \
-    pyttsx3 \
     requests \
     pyzmq \
     psutil \
+    pyyaml
+
+# Multimedia and audio packages
+RUN pip3 install --no-cache-dir --timeout 600 \
+    opencv-python \
+    pygame \
+    pyaudio \
+    pyttsx3
+
+# AI/ML packages (these are large and may timeout)
+RUN pip3 install --no-cache-dir --timeout 600 \
     py_trees \
-    face_recognition \
+    face_recognition
+
+# OpenAI packages (largest - torch dependency)
+RUN pip3 install --no-cache-dir --timeout 600 \
     openai \
-    openai-whisper \
+    openai-whisper
+
+# Web framework packages
+RUN pip3 install --no-cache-dir --timeout 600 \
     fastapi \
     uvicorn \
     sqlalchemy \
-    RPi.GPIO \
-    pyyaml
+    RPi.GPIO
 
 # Create workspace
 WORKDIR /ros2_workspace
