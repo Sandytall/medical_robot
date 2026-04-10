@@ -1,23 +1,37 @@
+version: '3.8'
+
 services:
-  ros2_robot:
+  mars_robot:
+    build:
+      context: .
+      dockerfile: Dockerfile.pi5
+    privileged: true                 # Required for GPIO access on Pi 5
+    network_mode: "host"            # For FastAPI dashboard access
     environment:
       - ROBOT_ENV=production
       - USE_MOCK_HARDWARE=false
-    devices:
-      - "/dev/video0:/dev/video0"    # IMX477 camera
-      - "/dev/gpiomem:/dev/gpiomem"  # GPIO access
-      - "/dev/snd:/dev/snd"          # Audio devices
-      - "/dev/ttyACM0:/dev/ttyACM0"  # Serial devices (if needed)
-    volumes:
-      - ./config:/config:ro
-      - ./ros2_workspace:/ros2_workspace
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ./shared_data:/shared_data
-      - /sys/class/gpio:/sys/class/gpio
-
-  wake_word_service:
-    environment:
-      - USE_MOCK_AUDIO=false
+      - DATABASE_PATH=/shared_data/database/patients.db
+      - DISPLAY=${DISPLAY}
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
     devices:
-      - "/dev/snd:/dev/snd"
+      - "/dev/video0:/dev/video0"    # IMX477 camera
+      - "/dev/gpiomem:/dev/gpiomem"  # GPIO memory access
+      - "/dev/mem:/dev/mem"          # Direct memory access for GPIO
+      - "/dev/snd:/dev/snd"          # Audio devices
+      - "/dev/input:/dev/input"      # Gamepad and input devices
+    volumes:
+      - ./config:/config:ro
+      - ./shared_data:/shared_data
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /sys/class/gpio:/sys/class/gpio:rw
+      - /dev/gpiochip0:/dev/gpiochip0
+      - /run/user/${UID:-1000}/pulse:/run/user/1000/pulse:ro
+    ports:
+      - "8000:8000"                 # FastAPI dashboard
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

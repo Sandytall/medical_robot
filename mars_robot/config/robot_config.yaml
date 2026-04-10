@@ -86,7 +86,7 @@ hardware:
 
     # Face detection settings
     face_detection:
-      cascade_file: "/opt/opencv/data/haarcascade_frontalface_default.xml"
+      cascade_file: "/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml"
       min_face_size: [30, 30]
       scale_factor: 1.1
       min_neighbors: 3

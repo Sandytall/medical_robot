@@ -20,9 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'idle_behavior = mars_behaviors.idle_behavior:main',
-            'follow_behavior = mars_behaviors.follow_behavior:main',
-            'manual_control = mars_behaviors.manual_control:main',
+            # Behavior nodes integrated into mars_core modules
+            # Individual nodes can be added later if needed
         ],
     },
 )

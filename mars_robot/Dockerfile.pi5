@@ -1,0 +1,118 @@
+FROM ros:humble-ros-base-jammy
+
+# Install system dependencies for Pi 5
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-colcon-common-extensions \
+    python3-rosdep \
+    ros-humble-cv-bridge \
+    ros-humble-image-transport \
+    ros-humble-camera-info-manager \
+    ros-humble-sensor-msgs \
+    ros-humble-geometry-msgs \
+    ros-humble-std-msgs \
+    ros-humble-vision-msgs \
+    ros-humble-diagnostic-msgs \
+    ros-humble-nav-msgs \
+    ros-humble-joy \
+    python3-opencv \
+    python3-numpy \
+    python3-scipy \
+    libasound2-dev \
+    libportaudio2 \
+    portaudio19-dev \
+    pulseaudio-utils \
+    alsa-utils \
+    # Pi 5 specific packages
+    python3-lgpio \
+    python3-gpiozero \
+    # Fast API and web dependencies
+    python3-fastapi \
+    python3-uvicorn \
+    python3-sqlalchemy \
+    # Audio processing
+    ffmpeg \
+    espeak \
+    espeak-data \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages in smaller chunks for Pi 5 ARM64
+# Basic packages first
+RUN pip3 install --no-cache-dir --timeout 900 \
+    numpy \
+    scipy \
+    pillow \
+    requests \
+    pyzmq \
+    psutil \
+    pyyaml
+
+# Multimedia packages
+RUN pip3 install --no-cache-dir --timeout 900 \
+    opencv-python \
+    pygame \
+    pyaudio \
+    pyttsx3
+
+# Essential ML packages (lightweight for Pi 5)
+RUN pip3 install --no-cache-dir --timeout 900 \
+    py_trees \
+    scikit-learn
+
+# Face recognition (use lighter alternatives for Pi 5)
+RUN pip3 install --no-cache-dir --timeout 900 \
+    face_recognition_models \
+    dlib
+
+# Web framework packages
+RUN pip3 install --no-cache-dir --timeout 900 \
+    fastapi \
+    uvicorn[standard] \
+    sqlalchemy \
+    sqlite3
+
+# GPIO access for Pi 5
+RUN pip3 install --no-cache-dir --timeout 900 \
+    lgpio \
+    gpiozero
+
+# AI/Chat packages (lightweight)
+RUN pip3 install --no-cache-dir --timeout 900 \
+    openai \
+    transformers \
+    torch --index-url https://download.pytorch.org/whl/cpu
+
+# Create workspace
+WORKDIR /ros2_workspace
+
+# Copy source files
+COPY ros2_workspace/src/ /ros2_workspace/src/
+
+# Initialize rosdep
+RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then rosdep init; fi && rosdep update
+
+# Install dependencies
+RUN rosdep install --from-paths src --ignore-src -r -y || true
+
+# Build workspace
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
+
+# Source ROS2 setup
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+RUN echo "if [ -f /ros2_workspace/install/setup.bash ]; then source /ros2_workspace/install/setup.bash; fi" >> ~/.bashrc
+
+# Create shared data directories
+RUN mkdir -p /shared_data/database /shared_data/faces /shared_data/logs /shared_data/voice
+
+# Copy configuration files
+COPY config /config
+COPY host_services /host_services
+
+# Expose FastAPI port
+EXPOSE 8000
+
+# Create entrypoint script
+COPY entrypoint.pi5.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

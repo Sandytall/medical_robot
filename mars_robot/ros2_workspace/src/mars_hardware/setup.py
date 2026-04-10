@@ -20,11 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'camera_node = mars_hardware.camera_node:main',
-            'motor_node = mars_hardware.motor_node:main',
-            'servo_node = mars_hardware.servo_node:main',
-            'audio_node = mars_hardware.audio_node:main',
-            'display_node = mars_hardware.display_node:main',
+            # Hardware nodes integrated into hardware_manager
+            # Individual nodes can be added later if needed
         ],
     },
 )

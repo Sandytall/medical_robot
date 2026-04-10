@@ -24,8 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'robot_controller = mars_core.robot_controller:main',
-            'command_processor = mars_core.command_processor:main',
-            'behavior_executor = mars_core.behavior_executor:main',
+            'behavior_tree_executor = mars_core.behavior_tree_executor:main',
         ],
     },
 )
