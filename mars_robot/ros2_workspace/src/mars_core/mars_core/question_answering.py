@@ -7,7 +7,7 @@ import os
 import time
 import json
 import threading
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 import rclpy
 from rclpy.node import Node
