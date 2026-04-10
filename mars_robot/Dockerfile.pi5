@@ -37,6 +37,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages in smaller chunks for Pi 5 ARM64
+# Pin pydantic to avoid conflicts with system FastAPI
+RUN pip3 install --no-cache-dir --timeout 900 "pydantic<2.0"
+
 # Basic packages (numpy/scipy already installed via apt)
 RUN pip3 install --no-cache-dir --timeout 900 \
     pillow \
@@ -84,6 +87,10 @@ RUN pip3 install --no-cache-dir --timeout 900 \
     transformers \
     tokenizers
 
+# Wake word detection
+RUN pip3 install --no-cache-dir --timeout 900 \
+    pvporcupine
+
 # Create workspace
 WORKDIR /ros2_workspace
 
@@ -97,7 +104,10 @@ RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then rosdep init
 RUN rosdep install --from-paths src --ignore-src -r -y || true
 
 # Build workspace
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release"
+
+# Verify build and list executables
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && source /ros2_workspace/install/setup.bash && ros2 pkg list | grep mars || echo 'Mars packages not found'"
 
 # Source ROS2 setup
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
