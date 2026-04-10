@@ -68,8 +68,7 @@ RUN pip3 install --no-cache-dir --timeout 900 \
 RUN pip3 install --no-cache-dir --timeout 900 \
     fastapi \
     uvicorn[standard] \
-    sqlalchemy \
-    sqlite3
+    sqlalchemy
 
 # GPIO access for Pi 5
 RUN pip3 install --no-cache-dir --timeout 900 \

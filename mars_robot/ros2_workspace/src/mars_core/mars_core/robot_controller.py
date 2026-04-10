@@ -35,6 +35,7 @@ from .question_answering import QuestionAnswering
 from .medicine_dispensing import MedicineDispensing
 from .health_assessment import HealthAssessment
 from .idle_behavior import IdleBehavior
+from .display_overlay_service import DisplayOverlayService
 
 
 class RobotMode(Enum):
@@ -84,6 +85,7 @@ class RobotController(Node):
         self.medicine_module = None
         self.health_module = None
         self.idle_module = None
+        self.display_overlay_service = None
         self._initialize_robot_modules()
 
         # QoS profiles
@@ -237,6 +239,14 @@ class RobotController(Node):
             self.health_module = HealthAssessment(self.hardware, self.database, self.config)
             self.idle_module = IdleBehavior(self.hardware, self.config)
 
+            # Initialize display overlay service
+            if self.hardware and self.hardware.display_overlay:
+                self.display_overlay_service = DisplayOverlayService(
+                    self.hardware.display_overlay,
+                    self.config.get('display_overlay', {})
+                )
+                self.display_overlay_service.initialize()
+
             # Start idle behavior by default
             self.idle_module.start_idle_behavior()
 
@@ -248,6 +258,10 @@ class RobotController(Node):
     def _startup_sequence(self):
         """Robot startup sequence"""
         try:
+            # Update display overlay to show startup
+            if self.display_overlay_service:
+                self.display_overlay_service.update_robot_state("starting_up", False)
+
             if self.hardware and self.hardware.display:
                 self.hardware.display.show_text("MARS Robot Starting...")
                 time.sleep(1)
@@ -257,6 +271,10 @@ class RobotController(Node):
                 self.hardware.audio.play_sound_effect('startup')
                 time.sleep(0.5)
                 self.hardware.audio.play_text("Hello! I am MARS, your hospital assistant. I'm ready to help!")
+
+            # Update display overlay to show ready state
+            if self.display_overlay_service:
+                self.display_overlay_service.update_robot_state("idle", True)
 
             self._publish_status("startup_complete")
             self.get_logger().info("🚀 MARS Robot startup sequence completed")
@@ -314,6 +332,10 @@ class RobotController(Node):
             self.previous_mode = self.current_mode
             self.current_mode = RobotMode.EMERGENCY
 
+            # Update display overlay for emergency
+            if self.display_overlay_service:
+                self.display_overlay_service.show_error("EMERGENCY STOP ACTIVATED", "emergency")
+
             # Stop all hardware
             if self.hardware:
                 self.hardware.emergency_stop()
@@ -345,6 +367,11 @@ class RobotController(Node):
                 self.is_emergency_stopped = False
                 self.current_mode = self.previous_mode if self.previous_mode != RobotMode.EMERGENCY else RobotMode.IDLE
 
+                # Clear display overlay error
+                if self.display_overlay_service:
+                    self.display_overlay_service.clear_error()
+                    self.display_overlay_service.update_robot_state(self.current_mode.value, True)
+
                 if self.hardware and self.hardware.audio:
                     self.hardware.audio.play_text("Emergency stop cleared")
 
@@ -352,6 +379,30 @@ class RobotController(Node):
 
         except Exception as e:
             self.get_logger().error(f"Emergency clear error: {e}")
+
+    def update_camera_feed(self, camera_frame=None):
+        """Update display overlay with camera feed"""
+        try:
+            if self.display_overlay_service and camera_frame is not None:
+                self.display_overlay_service.update_camera_feed(camera_frame, True)
+        except Exception as e:
+            self.get_logger().error(f"Camera feed update error: {e}")
+
+    def show_display_error(self, error_message: str, error_type: str = "warning"):
+        """Show error on display overlay"""
+        try:
+            if self.display_overlay_service:
+                self.display_overlay_service.show_error(error_message, error_type)
+        except Exception as e:
+            self.get_logger().error(f"Display error show error: {e}")
+
+    def clear_display_error(self):
+        """Clear display overlay error"""
+        try:
+            if self.display_overlay_service:
+                self.display_overlay_service.clear_error()
+        except Exception as e:
+            self.get_logger().error(f"Display error clear error: {e}")
 
     def mode_update_loop(self):
         """Main mode update loop"""
@@ -463,6 +514,10 @@ class RobotController(Node):
             self.mode_changes += 1
 
             self.get_logger().info(f"Mode changed: {old_mode.value} → {new_mode.value}")
+
+            # Update display overlay service
+            if self.display_overlay_service:
+                self.display_overlay_service.update_robot_state(new_mode.value, True)
 
             # Update display
             if self.hardware and self.hardware.display:
@@ -827,6 +882,10 @@ class RobotController(Node):
                 self.health_module.cleanup()
             if self.idle_module:
                 self.idle_module.cleanup()
+
+            # Shutdown display overlay service
+            if self.display_overlay_service:
+                self.display_overlay_service.shutdown()
 
             # Shutdown hardware
             if self.hardware:

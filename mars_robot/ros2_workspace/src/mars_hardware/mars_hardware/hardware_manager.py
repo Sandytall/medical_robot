@@ -12,6 +12,7 @@ from .interfaces.arm_interface import ArmInterface
 from .interfaces.camera_servo_interface import CameraServoInterface
 from .interfaces.audio_interface import AudioInterface
 from .interfaces.display_interface import DisplayInterface
+from .interfaces.display_overlay_interface import DisplayOverlayInterface
 
 from .real.real_camera import RealCamera
 from .real.real_motors import RealMotors
@@ -19,6 +20,7 @@ from .real.real_arms import RealArms
 from .real.real_camera_servos import RealCameraServos
 from .real.real_audio import RealAudio
 from .real.real_display import RealDisplay
+from .real.real_display_overlay import RealDisplayOverlay
 
 from .mock.mock_camera import MockCamera
 from .mock.mock_motors import MockMotors
@@ -26,6 +28,7 @@ from .mock.mock_arms import MockArms
 from .mock.mock_camera_servos import MockCameraServos
 from .mock.mock_audio import MockAudio
 from .mock.mock_display import MockDisplay
+from .mock.mock_display_overlay import MockDisplayOverlay
 
 
 class HardwareManager:
@@ -102,6 +105,12 @@ class HardwareManager:
             else MockDisplay(self.config.get('display', {}))
         )
 
+        # Display Overlay Interface (camera feeds, eyes, status)
+        self.display_overlay: DisplayOverlayInterface = (
+            RealDisplayOverlay(self.config.get('display_overlay', {})) if use_real_hardware
+            else MockDisplayOverlay(self.config.get('display_overlay', {}))
+        )
+
     def get_system_info(self) -> Dict[str, Any]:
         """Get current system information"""
         return {
@@ -116,7 +125,8 @@ class HardwareManager:
                 'arms': self.arms.is_connected(),
                 'camera_servos': self.camera_servos.is_connected(),
                 'audio': self.audio.is_connected(),
-                'display': self.display.is_connected()
+                'display': self.display.is_connected(),
+                'display_overlay': hasattr(self.display_overlay, 'is_initialized') and self.display_overlay.is_initialized
             }
         }
 
@@ -139,6 +149,7 @@ class HardwareManager:
             self.camera_servos.shutdown()
             self.audio.shutdown()
             self.display.shutdown()
+            self.display_overlay.shutdown()
             print("Hardware manager shutdown completed")
         except Exception as e:
             print(f"Error during shutdown: {e}")

@@ -131,6 +131,37 @@ hardware:
       font_size: 24           # Default font size for text
       text_color: [255, 255, 255]  # RGB text color
 
+  # Display Overlay configuration (animated eyes, camera feed, status)
+  display_overlay:
+    resolution: [800, 600]    # Overlay resolution (matches display)
+    background_color: [0, 0, 0]  # RGB background color
+    transparency: 0.9         # Overall overlay transparency (0.0-1.0)
+
+    # Eye animation settings
+    eyes:
+      size: 120               # Size of each eye in pixels
+      spacing: 60             # Space between eyes
+      animation_speed: 8.0    # Frames per emotion transition
+      blink_interval: 3.0     # Seconds between automatic blinks
+      emotion_change_interval: 8.0  # Seconds between emotion changes in idle
+
+    # Animation settings
+    animation:
+      fps: 60                 # Target frames per second
+      smooth_transitions: true # Enable smooth emotion transitions
+
+    # Status indicator settings
+    indicators:
+      ready_indicator_size: 20    # Size of ready indicator circle
+      status_font_size: 24        # Font size for status text
+      error_background_alpha: 0.7 # Error message background transparency
+
+    # Camera feed settings
+    camera_feed:
+      scale: 0.8              # Scale factor for camera feed (0.1-1.0)
+      border_width: 2         # Border width around camera feed
+      border_color: [255, 255, 255]  # RGB border color
+
   # Emergency stop configuration
   emergency_stop:
     pin: 12                   # GPIO pin for hardware emergency stop button
