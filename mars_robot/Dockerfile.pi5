@@ -26,10 +26,7 @@ RUN apt-get update && apt-get install -y \
     # Pi 5 specific packages
     python3-lgpio \
     python3-gpiozero \
-    # Fast API and web dependencies
-    python3-fastapi \
-    python3-uvicorn \
-    python3-sqlalchemy \
+    # Remove system FastAPI - use pip versions instead
     # Audio processing
     ffmpeg \
     espeak \
@@ -37,9 +34,6 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages in smaller chunks for Pi 5 ARM64
-# Pin pydantic to avoid conflicts with system FastAPI
-RUN pip3 install --no-cache-dir --timeout 900 "pydantic<2.0"
-
 # Basic packages (numpy/scipy already installed via apt)
 RUN pip3 install --no-cache-dir --timeout 900 \
     pillow \
@@ -64,8 +58,11 @@ RUN pip3 install --no-cache-dir --timeout 900 \
     mediapipe \
     face-recognition
 
-# Additional web packages (core ones installed via apt)
+# Web framework packages (use pip versions for compatibility)
 RUN pip3 install --no-cache-dir --timeout 900 \
+    fastapi \
+    uvicorn[standard] \
+    sqlalchemy \
     python-multipart \
     jinja2
 
