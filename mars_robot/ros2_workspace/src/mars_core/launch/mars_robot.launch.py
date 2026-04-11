@@ -39,83 +39,8 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # Hardware nodes
-        Node(
-            package='mars_hardware',
-            executable='camera_node',
-            name='camera_node',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_hardware',
-            executable='motor_node',
-            name='motor_node',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_hardware',
-            executable='servo_node',
-            name='servo_node',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_hardware',
-            executable='audio_node',
-            name='audio_node',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_hardware',
-            executable='display_node',
-            name='display_node',
-            output='screen'
-        ),
-
-        # Voice processing nodes
-        Node(
-            package='mars_voice',
-            executable='wake_word_bridge',
-            name='wake_word_bridge',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_voice',
-            executable='speech_processor',
-            name='speech_processor',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_voice',
-            executable='tts_node',
-            name='tts_node',
-            output='screen'
-        ),
-
-        # Behavior nodes
-        Node(
-            package='mars_behaviors',
-            executable='idle_behavior',
-            name='idle_behavior',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_behaviors',
-            executable='follow_behavior',
-            name='follow_behavior',
-            output='screen'
-        ),
-
-        Node(
-            package='mars_behaviors',
-            executable='manual_control',
-            name='manual_control',
-            output='screen'
-        ),
+        # Note: All hardware control is integrated into robot_controller via HardwareManager
+        # Note: All behaviors are integrated into robot_controller as modules
+        # Note: Voice processing is handled by robot_controller and behavior_tree_executor
+        # No additional standalone nodes needed - the architecture is monolithic by design
     ])

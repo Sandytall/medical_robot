@@ -161,8 +161,20 @@ class RealDisplayOverlay(DisplayOverlayInterface):
             # Initialize pygame
             pygame.init()
 
-            # Set display mode with transparency support
-            os.environ['SDL_VIDEODRIVER'] = 'x11'
+            # Set display mode with fallback support for containers
+            if os.environ.get('DISPLAY'):
+                # X11 available
+                os.environ['SDL_VIDEODRIVER'] = 'x11'
+                print("✅ RealDisplayOverlay: Using X11 display")
+            elif os.path.exists('/dev/fb0') or os.path.exists('/dev/fb1'):
+                # Use framebuffer for Pi 5 direct display
+                os.environ['SDL_VIDEODRIVER'] = 'fbcon'
+                os.environ['SDL_FBDEV'] = '/dev/fb1'  # Secondary framebuffer
+                print("✅ RealDisplayOverlay: Using framebuffer display")
+            else:
+                # Fallback to dummy mode for containers/headless
+                os.environ['SDL_VIDEODRIVER'] = 'dummy'
+                print("⚠️  RealDisplayOverlay: Running in headless mode (no display output)")
 
             # Create display surface
             self.screen = pygame.display.set_mode(

@@ -114,8 +114,12 @@ def init_database():
         print(f"❌ Database initialization error: {e}")
 
 def get_db_connection():
-    """Get database connection"""
-    return sqlite3.connect(DATABASE_PATH)
+    """Get database connection with optimizations for concurrent access"""
+    conn = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+    # Enable WAL mode for better concurrent access (robot + dashboard)
+    conn.execute('PRAGMA journal_mode=WAL')
+    conn.execute('PRAGMA foreign_keys=ON')
+    return conn
 
 @app.on_event("startup")
 async def startup_event():
