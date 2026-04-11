@@ -20,15 +20,7 @@ from .real.real_arms import RealArms
 from .real.real_camera_servos import RealCameraServos
 from .real.real_audio import RealAudio
 from .real.real_display import RealDisplay
-from .real.real_display_overlay import RealDisplayOverlay
-
-from .mock.mock_camera import MockCamera
-from .mock.mock_motors import MockMotors
-from .mock.mock_arms import MockArms
-from .mock.mock_camera_servos import MockCameraServos
-from .mock.mock_audio import MockAudio
-from .mock.mock_display import MockDisplay
-from .mock.mock_display_overlay import MockDisplayOverlay
+from .real.terminator_display_overlay import TerminatorDisplayOverlay
 
 
 class HardwareManager:
@@ -37,7 +29,8 @@ class HardwareManager:
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or {}
         self.is_pi = self.detect_pi_environment()
-        self.force_mock = os.environ.get('USE_MOCK_HARDWARE', 'false').lower() == 'true'
+        # Force real hardware only - no mock hardware allowed
+        self.force_mock = False
 
         self._initialize_hardware()
 
@@ -66,59 +59,42 @@ class HardwareManager:
             return False
 
     def _initialize_hardware(self):
-        """Initialize hardware interfaces based on detected environment"""
-        use_real_hardware = self.is_pi and not self.force_mock
+        """Initialize hardware interfaces - only real hardware, no mock"""
+        if not self.is_pi:
+            print("⚠️  Warning: Not running on Raspberry Pi 5. Hardware may not function correctly.")
 
-        # Camera Interface
-        self.camera: CameraInterface = (
-            RealCamera(self.config.get('camera', {})) if use_real_hardware
-            else MockCamera(self.config.get('camera', {}))
-        )
+        # Camera Interface - always real hardware
+        self.camera: CameraInterface = RealCamera(self.config.get('camera', {}))
 
-        # Motor Interface (L298N dual motor driver)
-        self.motors: MotorInterface = (
-            RealMotors(self.config.get('motors', {})) if use_real_hardware
-            else MockMotors(self.config.get('motors', {}))
-        )
+        # Motor Interface (L298N dual motor driver) - always real hardware
+        self.motors: MotorInterface = RealMotors(self.config.get('motors', {}))
 
-        # Arm Interface (2 arms × 4 servos each)
-        self.arms: ArmInterface = (
-            RealArms(self.config.get('arms', {})) if use_real_hardware
-            else MockArms(self.config.get('arms', {}))
-        )
+        # Arm Interface (2 arms × 4 servos each) - always real hardware
+        self.arms: ArmInterface = RealArms(self.config.get('arms', {}))
 
-        # Camera Servo Interface (pan/tilt for camera)
-        self.camera_servos: CameraServoInterface = (
-            RealCameraServos(self.config.get('camera_servos', {})) if use_real_hardware
-            else MockCameraServos(self.config.get('camera_servos', {}))
-        )
+        # Camera Servo Interface (pan/tilt for camera) - always real hardware
+        self.camera_servos: CameraServoInterface = RealCameraServos(self.config.get('camera_servos', {}))
 
-        # Audio Interface (speaker + microphone)
-        self.audio: AudioInterface = (
-            RealAudio(self.config.get('audio', {})) if use_real_hardware
-            else MockAudio(self.config.get('audio', {}))
-        )
+        # Audio Interface (speaker + microphone) - always real hardware
+        self.audio: AudioInterface = RealAudio(self.config.get('audio', {}))
 
-        # Display Interface (emotion display)
-        self.display: DisplayInterface = (
-            RealDisplay(self.config.get('display', {})) if use_real_hardware
-            else MockDisplay(self.config.get('display', {}))
-        )
+        # Display Interface (emotion display) - always real hardware
+        self.display: DisplayInterface = RealDisplay(self.config.get('display', {}))
 
-        # Display Overlay Interface (camera feeds, eyes, status)
-        self.display_overlay: DisplayOverlayInterface = (
-            RealDisplayOverlay(self.config.get('display_overlay', {})) if use_real_hardware
-            else MockDisplayOverlay(self.config.get('display_overlay', {}))
-        )
+        # Display Overlay Interface - use terminator terminal display
+        self.display_overlay: DisplayOverlayInterface = TerminatorDisplayOverlay(self.config.get('display_overlay', {}))
+
+        print("✅ Hardware manager initialized with REAL HARDWARE ONLY")
 
     def get_system_info(self) -> Dict[str, Any]:
         """Get current system information"""
         return {
             'is_pi': self.is_pi,
-            'force_mock': self.force_mock,
+            'force_mock': False,  # Never using mock hardware
             'platform': platform.system(),
             'architecture': platform.machine(),
-            'using_real_hardware': self.is_pi and not self.force_mock,
+            'using_real_hardware': True,  # Always using real hardware
+            'display_overlay_type': 'terminator_terminal',
             'hardware_status': {
                 'camera': self.camera.is_connected(),
                 'motors': self.motors.is_connected(),

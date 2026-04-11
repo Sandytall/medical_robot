@@ -61,11 +61,11 @@ class RealDisplay(DisplayInterface):
             EmotionType.HAPPY: self._draw_happy_eyes,
             EmotionType.SAD: self._draw_sad_eyes,
             EmotionType.EXCITED: self._draw_excited_eyes,
-            EmotionType.SLEEPY: self._draw_sleepy_eyes,
+            EmotionType.SLEEPING: self._draw_sleepy_eyes,
             EmotionType.CONFUSED: self._draw_confused_eyes,
             EmotionType.ANGRY: self._draw_angry_eyes,
             EmotionType.SURPRISED: self._draw_surprised_eyes,
-            EmotionType.NORMAL: self._draw_normal_eyes
+            EmotionType.NEUTRAL: self._draw_normal_eyes
         }
 
         print(f"RealDisplay: Configured for {self.resolution[0]}x{self.resolution[1]} on {self.device}")
