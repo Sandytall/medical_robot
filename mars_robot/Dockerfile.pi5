@@ -103,8 +103,13 @@ RUN rosdep install --from-paths src --ignore-src -r -y || true
 # Build workspace
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release"
 
+# Fix ROS2 executable registration for symlinked installations
+RUN mkdir -p /ros2_workspace/install/mars_core/lib/mars_core && \
+    ln -sf ../../bin/robot_controller /ros2_workspace/install/mars_core/lib/mars_core/robot_controller && \
+    ln -sf ../../bin/behavior_tree_executor /ros2_workspace/install/mars_core/lib/mars_core/behavior_tree_executor
+
 # Verify build and list executables
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash && source /ros2_workspace/install/setup.bash && ros2 pkg list | grep mars || echo 'Mars packages not found'"
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && source /ros2_workspace/install/setup.bash && ros2 pkg executables mars_core"
 
 # Source ROS2 setup
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
