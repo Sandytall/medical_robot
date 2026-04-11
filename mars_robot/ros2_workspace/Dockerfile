@@ -63,15 +63,10 @@ RUN pip3 install --no-cache-dir --timeout 600 \
 RUN pip3 install --no-cache-dir --timeout 600 \
     py_trees==2.2.3
 
-# Face recognition - build from source for Pi 5
-# Install dlib without CUDA/AVX (ARM64 optimized)
-RUN pip3 install --no-cache-dir --timeout 1800 \
-    dlib==19.24.2 \
-    --global-option="--no" --global-option="--set" \
-    --global-option="DLIB_NO_GUI_SUPPORT=1"
-
-RUN pip3 install --no-cache-dir --timeout 600 \
-    face_recognition==1.3.0
+# Skip face_recognition for now - use OpenCV face detection only
+# This avoids dlib compilation issues on Pi 5
+# Face detection still works, just no face recognition matching
+RUN echo "Face recognition disabled - using OpenCV face detection only"
 
 # OpenAI packages (use CPU-only torch for ARM64)
 RUN pip3 install --no-cache-dir --timeout 1200 \
