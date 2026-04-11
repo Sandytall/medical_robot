@@ -19,7 +19,7 @@ def generate_launch_description():
             description='Use mock hardware for development'
         ),
 
-        # Core robot controller
+        # Core robot controller (includes command processing)
         Node(
             package='mars_core',
             executable='robot_controller',
@@ -31,19 +31,11 @@ def generate_launch_description():
             }]
         ),
 
-        # Command processor
+        # Behavior tree executor
         Node(
             package='mars_core',
-            executable='command_processor',
-            name='command_processor',
-            output='screen'
-        ),
-
-        # Behavior executor
-        Node(
-            package='mars_core',
-            executable='behavior_executor',
-            name='behavior_executor',
+            executable='behavior_tree_executor',
+            name='behavior_tree_executor',
             output='screen'
         ),
 
