@@ -48,10 +48,10 @@ class HardwareManager:
             if not os.path.exists('/dev/gpiomem'):
                 return False
 
-            # Check CPU info for BCM2835 (Pi hardware)
+            # Check CPU info for Pi hardware (BCM2835 for Pi 1-4, BCM2712 for Pi 5)
             with open('/proc/cpuinfo', 'r') as f:
                 cpu_info = f.read()
-                if 'bcm2835' not in cpu_info.lower():
+                if 'bcm2835' not in cpu_info.lower() and 'bcm2712' not in cpu_info.lower():
                     return False
 
             # Check for Pi 5 specific hardware
