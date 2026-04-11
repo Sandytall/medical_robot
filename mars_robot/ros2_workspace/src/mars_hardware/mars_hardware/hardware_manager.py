@@ -44,8 +44,8 @@ class HardwareManager:
     def detect_pi_environment(self) -> bool:
         """Detect if we're running on a Raspberry Pi 5"""
         try:
-            # Check for GPIO memory device
-            if not os.path.exists('/dev/gpiomem'):
+            # Check for GPIO devices (gpiomem or gpiochip0)
+            if not (os.path.exists('/dev/gpiomem') or os.path.exists('/dev/gpiochip0')):
                 return False
 
             # Check CPU info for Pi hardware (BCM2835 for Pi 1-4, BCM2712 for Pi 5)
