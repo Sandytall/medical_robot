@@ -28,14 +28,14 @@ from mars_hardware import HardwareManager
 from mars_hardware.interfaces.display_interface import EmotionType
 
 # Import robot function modules
-from patient_registration import PatientRegistration, PatientDatabase
-from manual_control import ManualControl
-from follow_mode import FollowMode
-from question_answering import QuestionAnswering
-from medicine_dispensing import MedicineDispensing
-from health_assessment import HealthAssessment
-from idle_behavior import IdleBehavior
-from display_overlay_service import DisplayOverlayService
+from .patient_registration import PatientRegistration, PatientDatabase
+from .manual_control import ManualControl
+from .follow_mode import FollowMode
+from .question_answering import QuestionAnswering
+from .medicine_dispensing import MedicineDispensing
+from .health_assessment import HealthAssessment
+from .idle_behavior import IdleBehavior
+from .display_overlay_service import DisplayOverlayService
 
 
 class RobotMode(Enum):
