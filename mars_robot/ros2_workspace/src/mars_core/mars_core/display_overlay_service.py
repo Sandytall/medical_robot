@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 from enum import Enum
 import numpy as np
 
-from ..interfaces.display_overlay_interface import (
+from mars_hardware.interfaces.display_overlay_interface import (
     DisplayOverlayInterface, EyeEmotion, EyePosition, DisplayMode
 )
 
